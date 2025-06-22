@@ -1,9 +1,43 @@
-basePath: /api
-host: localhost:8080
+definitions:
+  internal_book.Book:
+    properties:
+      author:
+        example: Alan A. Donovan
+        type: string
+      id:
+        example: 1
+        type: integer
+      title:
+        example: The Go Programming Language
+        type: string
+    type: object
 info:
   contact: {}
-  description: A REST API for managing books and members.
-  title: Library Management API
-  version: "1.0"
-paths: {}
+paths:
+  /api/books:
+    post:
+      consumes:
+      - application/json
+      description: Create a new book by providing title and author
+      parameters:
+      - description: Book JSON
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/internal_book.Book'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_book.Book'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Add a new book
+      tags:
+      - books
 swagger: "2.0"

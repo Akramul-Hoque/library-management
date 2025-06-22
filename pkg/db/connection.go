@@ -10,29 +10,39 @@ import (
 
 var DB *sql.DB
 
-// Init initializes the database connection pool.
 func Init() {
 	var err error
 
-	// Data Source Name (DSN) format:
-	// username:password@protocol(address)/dbname?param=value
 	dsn := "root:password@tcp(127.0.0.1:3306)/librarydb?parseTime=true"
-
 	DB, err = sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatalf("DB connection error: %v", err)
 	}
 
-	// Optional: Set maximum number of open and idle connections to optimize pool usage
 	DB.SetMaxOpenConns(25)
 	DB.SetMaxIdleConns(25)
 	DB.SetConnMaxLifetime(5 * time.Minute)
 
-	// Ping the DB to verify connection
 	err = DB.Ping()
 	if err != nil {
 		log.Fatalf("DB ping failed: %v", err)
 	}
 
 	log.Println("Successfully connected to the database")
+
+	// Auto-create books table
+	createTableSQL := `
+	CREATE TABLE IF NOT EXISTS books (
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		title VARCHAR(255) NOT NULL,
+		author VARCHAR(255) NOT NULL,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	);`
+
+	_, err = DB.Exec(createTableSQL)
+	if err != nil {
+		log.Fatalf("Failed to create books table: %v", err)
+	}
+
+	log.Println("Table 'books' is ready.")
 }

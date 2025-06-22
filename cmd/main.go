@@ -25,9 +25,20 @@ func main() {
 	r := mux.NewRouter()
 
 	// Swagger route
-	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
+	r.PathPrefix("/swagger/").Handler(httpSwagger.Handler(
+		httpSwagger.URL("/swagger/doc.json"), // Specify JSON endpoint
+	))
 
 	// Book routes
+	// Book routes with Swagger annotations
+	// @Summary Create a new book
+	// @Description Add a new book to the library
+	// @Tags books
+	// @Accept json
+	// @Produce json
+	// @Param book body book.BookRequest true "Book details"
+	// @Success 201 {object} book.Book
+	// @Router /api/books [post]
 	r.HandleFunc("/api/books", book.CreateBookHandler).Methods("POST")
 	r.HandleFunc("/api/books", book.GetBooksHandler).Methods("GET")
 

@@ -26,13 +26,16 @@ func CreateBookHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(b)
 }
 
-// GetBooksHandler godoc
-// @Summary Get all books
-// @Description Retrieve a list of all books
+// CreateBookHandler godoc
+// @Summary Add a new book
+// @Description Create a new book by providing title and author
 // @Tags books
+// @Accept json
 // @Produce json
-// @Success 200 {array} Book
-// @Router /api/books [get]
+// @Param book body Book true "Book JSON"  // 👈 Use Book struct directly
+// @Success 201 {object} Book              // 👈 Response is Book object
+// @Failure 400 {string} string "Bad Request"
+// @Router /api/books [post]
 func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 	books := GetAllBooks()
 	json.NewEncoder(w).Encode(books)
