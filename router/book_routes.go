@@ -24,4 +24,13 @@ func RegisterBookRoutes(r *mux.Router) {
 	// @Success 200 {array} book.Book
 	// @Router /api/books [get]
 	r.HandleFunc("/api/books", book.GetBooksHandler).Methods("GET")
+
+	// @Summary List all books
+	// @Description Retrieve books by name in the library
+	// @Tags books
+	// @Produce json
+	// @Success 200 {array} book.Book
+	// @Router /api/books [get]
+	r.HandleFunc("/api/books/search", book.GetBooksByNameHandler).Methods("GET")
+
 }

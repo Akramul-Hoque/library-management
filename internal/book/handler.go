@@ -32,7 +32,7 @@ func CreateBookHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	b.ID = id
-	response.JSON(w, http.StatusCreated, "success", "Book created", "BOOK_CREATED", b) // Send back created book
+	response.JSON(w, http.StatusCreated, "success", "Book created", "BOOK_CREATED", nil) // Send back created book
 }
 
 // CreateBookHandler godoc
@@ -51,5 +51,23 @@ func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 		response.JSON(w, http.StatusInternalServerError, "error", "Failed to fetch books", "BOOK_FETCH_ERROR", nil)
 		return
 	}
+	response.JSON(w, http.StatusOK, "success", "Books retrieved", "BOOKS_RETRIEVED", books)
+}
+
+func GetBooksByNameHandler(w http.ResponseWriter, r *http.Request) {
+	// Get 'name' from query string
+	name := r.URL.Query().Get("name")
+	if name == "" {
+		response.JSON(w, http.StatusBadRequest, "error", "Missing book name in query", "MISSING_QUERY", nil)
+		return
+	}
+
+	// Call a service/repo function to search by name
+	books, err := GetBooksByName(name)
+	if err != nil {
+		response.JSON(w, http.StatusInternalServerError, "error", "Failed to fetch books", "BOOK_FETCH_ERROR", nil)
+		return
+	}
+
 	response.JSON(w, http.StatusOK, "success", "Books retrieved", "BOOKS_RETRIEVED", books)
 }
