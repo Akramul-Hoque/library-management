@@ -6,11 +6,11 @@ func NewService() *Service {
 	return &Service{}
 }
 
-func AddBook(title, author string) {
+func AddBook(title, author string) (int, error) {
 	b := Book{Title: title, Author: author}
-	save(b)
+	return save(b)
 }
 
-func GetAllBooks() []Book {
+func GetAllBooks() ([]Book, error) {
 	return findAll()
 }

@@ -29,20 +29,4 @@ func Init() {
 	}
 
 	log.Println("Successfully connected to the database")
-
-	// Auto-create books table
-	createTableSQL := `
-	CREATE TABLE IF NOT EXISTS books (
-		id INT AUTO_INCREMENT PRIMARY KEY,
-		title VARCHAR(255) NOT NULL,
-		author VARCHAR(255) NOT NULL,
-		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-	);`
-
-	_, err = DB.Exec(createTableSQL)
-	if err != nil {
-		log.Fatalf("Failed to create books table: %v", err)
-	}
-
-	log.Println("Table 'books' is ready.")
 }
