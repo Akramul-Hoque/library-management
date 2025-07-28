@@ -5,12 +5,13 @@ import (
 	"log"
 )
 
-func save(member Member) {
-	query := "INSERT INTO members (name) VALUES (?)"
-	_, err := db.DB.Exec(query, member.Name)
-	if err != nil {
-		log.Println("Error inserting member:", err)
-	}
+func saveMember(m Member) error {
+	query := `
+		INSERT INTO members (name, contact, email, password, role, is_active)
+		VALUES (?, ?, ?, ?, ?, ?)
+	`
+	_, err := db.DB.Exec(query, m.Name, m.Contact, m.Email, m.Password, m.Role, m.IsActive)
+	return err
 }
 
 func findAll() []Member {

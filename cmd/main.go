@@ -16,7 +16,7 @@ import (
 func main() {
 	db.Init()
 
-	r := router.SetupRouter()
+	r := router.SetupRouter() //sets http router using gorila mux//
 
 	log.Println("Server started at :8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
