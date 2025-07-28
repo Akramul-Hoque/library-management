@@ -2,6 +2,7 @@ package member
 
 import (
 	"encoding/json"
+	"library-management/response"
 	"net/http"
 )
 
@@ -10,22 +11,21 @@ var service = NewService()
 func RegisterMemberHandler(w http.ResponseWriter, r *http.Request) {
 	var m Member
 	if err := json.NewDecoder(r.Body).Decode(&m); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		response.Universal(w, http.StatusBadRequest, false, "Invalid request payload")
 		return
 	}
 
 	err := service.RegisterMember(&m)
 	if err != nil {
 		if err.Error() == "missing required fields" {
-			http.Error(w, "Missing required fields: name, contact, password", http.StatusBadRequest)
+			response.Universal(w, http.StatusBadRequest, false, "Missing required fields: name, contact, password")
 			return
 		}
-		http.Error(w, "Failed to register member: "+err.Error(), http.StatusInternalServerError)
+		response.Universal(w, http.StatusInternalServerError, false, "Failed to register member: "+err.Error())
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Member registered successfully"})
+	response.Universal(w, http.StatusCreated, true, "Member registered successfully")
 }
 
 func GetMembersHandler(w http.ResponseWriter, r *http.Request) {
