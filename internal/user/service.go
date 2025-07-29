@@ -3,6 +3,8 @@ package user
 import (
 	"errors"
 
+	"log"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -10,6 +12,23 @@ type Service struct{}
 
 func NewService() *Service {
 	return &Service{}
+}
+
+func (s *Service) AuthenticateUser(contact, password string) (*User, error) {
+	users := findAllUsers()
+	for _, u := range users {
+		if u.Contact == contact {
+			err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
+			if err == nil {
+				log.Println("DEBUG: Password match!")
+				return &u, nil
+			} else {
+				log.Printf("DEBUG: Password mismatch: %v", err)
+			}
+			break
+		}
+	}
+	return nil, errors.New("invalid credentials")
 }
 
 func (s *Service) RegisterUser(u *User) error {

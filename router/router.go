@@ -16,6 +16,7 @@ func SetupRouter() *mux.Router {
 	// Register routes
 	RegisterBookRoutes(r)
 	RegisterUserRoutes(r)
+	RegisterBorrowRoutes(r)
 
 	return r
 }

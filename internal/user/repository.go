@@ -15,7 +15,7 @@ func saveUser(u User) error {
 }
 
 func findAllUsers() []User {
-	rows, err := db.DB.Query(`SELECT id, name, contact, email, role, created_at, updated_at, is_active FROM users`)
+	rows, err := db.DB.Query(`SELECT id, name, contact, email, password, role, created_at, updated_at, is_active FROM users`)
 	if err != nil {
 		log.Println("Error fetching users:", err)
 		return nil
@@ -30,6 +30,7 @@ func findAllUsers() []User {
 			&u.Name,
 			&u.Contact,
 			&u.Email,
+			&u.Password,
 			&u.Role,
 			&u.CreatedAt,
 			&u.UpdatedAt,
