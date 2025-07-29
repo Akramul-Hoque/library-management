@@ -1,15 +1,17 @@
 package book
 
 // Book represents a book in the library
-// swagger:model
 type Book struct {
-	ID     int    `json:"id" example:"1"`
-	Title  string `json:"title" example:"The Go Programming Language"`
-	Author string `json:"author" example:"Alan A. Donovan"`
+	Name        string `json:"name"`
+	Author      string `json:"author"`
+	Published   string `json:"published"` // e.g. date string
+	Publication string `json:"publication"`
 }
 
-// swagger:model
+// BookRequest is the payload for inserting a book
 type BookRequest struct {
-	Title  string `json:"title" example:"Clean Code"`
-	Author string `json:"author" example:"Robert C. Martin"`
+	Name        string `json:"name"`
+	Author      string `json:"author"`
+	Published   string `json:"published"`
+	Publication string `json:"publication"`
 }

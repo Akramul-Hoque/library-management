@@ -1,9 +1,10 @@
 -- +goose Up
 CREATE TABLE IF NOT EXISTS books (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     author VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    published VARCHAR(50) NOT NULL,
+    publication VARCHAR(255) NOT NULL
 );
 
 -- +goose Down

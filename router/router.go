@@ -3,8 +3,6 @@ package router
 import (
 	"github.com/gorilla/mux"
 	httpSwagger "github.com/swaggo/http-swagger"
-
-	_ "library-management/docs"
 )
 
 func SetupRouter() *mux.Router {
@@ -17,7 +15,7 @@ func SetupRouter() *mux.Router {
 
 	// Register routes
 	RegisterBookRoutes(r)
-	RegisterMemberRoutes(r)
+	RegisterUserRoutes(r)
 
 	return r
 }

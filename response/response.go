@@ -14,14 +14,17 @@ type APIResponse struct {
 	Data        interface{} `json:"data"`        // Any result data
 }
 
-func Universal(w http.ResponseWriter, status int, success bool, message string) {
+func Universal(w http.ResponseWriter, status int, success bool, message, messageCode string, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":  status,
-		"code":    http.StatusText(status),
-		"success": success,
-		"message": message,
-	})
+	resp := APIResponse{
+		Status:      "success",
+		Code:        status,
+		Message:     message,
+		MessageCode: messageCode,
+		Data:        data,
+	}
+	json.NewEncoder(w).Encode(resp)
 }
 
 // The Universal function has been

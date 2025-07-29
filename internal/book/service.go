@@ -6,7 +6,7 @@ func NewService() *Service {
 	return &Service{}
 }
 
-func AddBook(b Book) (int, error) {
+func AddBook(b Book) error {
 	return save(b)
 }
 

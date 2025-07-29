@@ -5,25 +5,18 @@ import (
 	"log"
 )
 
-func save(book Book) (int, error) {
-	query := "INSERT INTO books (title, author) VALUES (?, ?)"
-	result, err := db.DB.Exec(query, book.Title, book.Author)
+func save(book Book) error {
+	query := "INSERT INTO books (name, author, published, publication) VALUES (?, ?, ?, ?)"
+	_, err := db.DB.Exec(query, book.Name, book.Author, book.Published, book.Publication)
 	if err != nil {
 		log.Println("Error inserting book:", err)
-		return 0, err
+		return err
 	}
-
-	id64, err := result.LastInsertId()
-	if err != nil {
-		log.Println("Error getting last insert id:", err)
-		return 0, err
-	}
-
-	return int(id64), nil
+	return nil
 }
 
 func findAll() ([]Book, error) {
-	query := "SELECT id, title, author FROM books"
+	query := "SELECT name, author, published, publication FROM books"
 	rows, err := db.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -33,7 +26,7 @@ func findAll() ([]Book, error) {
 	var books []Book
 	for rows.Next() {
 		var b Book
-		if err := rows.Scan(&b.ID, &b.Title, &b.Author); err != nil {
+		if err := rows.Scan(&b.Name, &b.Author, &b.Published, &b.Publication); err != nil {
 			return nil, err
 		}
 		books = append(books, b)
@@ -47,7 +40,7 @@ func findAll() ([]Book, error) {
 }
 
 func findBooksByName(name string) ([]Book, error) {
-	query := "SELECT id, title, author FROM books WHERE title LIKE ?"
+	query := "SELECT name, author, published, publication FROM books WHERE name LIKE ?"
 	rows, err := db.DB.Query(query, "%"+name+"%")
 	if err != nil {
 		return nil, err
@@ -57,7 +50,7 @@ func findBooksByName(name string) ([]Book, error) {
 	var books []Book
 	for rows.Next() {
 		var b Book
-		if err := rows.Scan(&b.ID, &b.Title, &b.Author); err != nil {
+		if err := rows.Scan(&b.Name, &b.Author, &b.Published, &b.Publication); err != nil {
 			return nil, err
 		}
 		books = append(books, b)
