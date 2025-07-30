@@ -1,6 +1,7 @@
 package book
 
 import (
+	"database/sql"
 	"library-management/pkg/db"
 	"log"
 )
@@ -16,7 +17,7 @@ func save(book Book) error {
 }
 
 func findAll() ([]Book, error) {
-	query := "SELECT name, author, published, publication, quantity FROM books"
+	query := "SELECT id, name, author, published, publication, quantity FROM books"
 	rows, err := db.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -26,7 +27,7 @@ func findAll() ([]Book, error) {
 	var books []Book
 	for rows.Next() {
 		var b Book
-		if err := rows.Scan(&b.Name, &b.Author, &b.Published, &b.Publication, &b.Quantity); err != nil {
+		if err := rows.Scan(&b.Id, &b.Name, &b.Author, &b.Published, &b.Publication, &b.Quantity); err != nil {
 			return nil, err
 		}
 		books = append(books, b)
@@ -56,4 +57,43 @@ func findBooksByName(name string) ([]Book, error) {
 		books = append(books, b)
 	}
 	return books, nil
+}
+
+func updateBook(b Book) error {
+	var exists bool
+	checkQuery := "SELECT EXISTS(SELECT 1 FROM books WHERE id = ?)"
+	err := db.DB.QueryRow(checkQuery, b.Id).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return sql.ErrNoRows
+	}
+
+	updateQuery := "UPDATE books SET name = ?, author = ?, published = ?, publication = ?, quantity = ? WHERE id = ?"
+	_, err = db.DB.Exec(updateQuery, b.Name, b.Author, b.Published, b.Publication, b.Quantity, b.Id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+func deleteBook(id int) error {
+	var exists bool
+	checkQuery := "SELECT EXISTS(SELECT 1 FROM books WHERE id = ?)"
+	err := db.DB.QueryRow(checkQuery, id).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return sql.ErrNoRows
+	}
+
+	deleteQuery := "DELETE FROM books WHERE id = ?"
+	_, err = db.DB.Exec(deleteQuery, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

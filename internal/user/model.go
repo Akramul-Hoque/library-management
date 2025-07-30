@@ -29,3 +29,11 @@ type loginRequest struct {
 	Contact  string `json:"contact"`
 	Password string `json:"password"`
 }
+
+type ErrInactiveAccount struct {
+	Message string
+}
+
+func (e ErrInactiveAccount) Error() string {
+	return e.Message
+}

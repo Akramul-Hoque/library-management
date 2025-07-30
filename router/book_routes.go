@@ -2,6 +2,8 @@ package router
 
 import (
 	"library-management/internal/book"
+	"library-management/internal/middleware"
+	"net/http"
 
 	"github.com/gorilla/mux"
 )
@@ -31,6 +33,8 @@ func RegisterBookRoutes(r *mux.Router) {
 	// @Produce json
 	// @Success 200 {array} book.Book
 	// @Router /api/books [get]
-	r.HandleFunc("/api/books/search", book.GetBooksByNameHandler).Methods("GET")
+	r.Handle("/api/books/search", middleware.AuthMiddleware(http.HandlerFunc(book.GetBooksByNameHandler))).Methods("GET")
 
+	r.Handle("/api/books/edit", middleware.AuthMiddleware(http.HandlerFunc(book.EditBooksHandler))).Methods("PUT")
+	r.Handle("/api/books/delete", middleware.AuthMiddleware(http.HandlerFunc(book.DeletetBooksHandler))).Methods("DELETE")
 }

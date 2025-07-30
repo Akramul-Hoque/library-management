@@ -2,7 +2,9 @@ package user
 
 import (
 	"encoding/json"
-	"library-management/response"
+	"errors"
+	"library-management/internal/middleware"
+	"library-management/internal/response"
 	"net/http"
 	"strings"
 )
@@ -34,6 +36,42 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.Universal(w, http.StatusCreated, true, "User registered successfully", "USER_REGISTERED", nil)
+}
+
+// OTPVerifyHandler handles OTP verification and login.
+func OTPVerifyHandler(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Contact string `json:"contact"`
+		OTP     string `json:"otp"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		response.Universal(w, http.StatusBadRequest, false, "Invalid request payload", "INVALID_PAYLOAD", nil)
+		return
+	}
+
+	req.Contact = strings.TrimSpace(req.Contact)
+	req.OTP = strings.TrimSpace(req.OTP)
+
+	err := service.VerifyOTP(req.Contact, req.OTP)
+	if err != nil {
+		response.Universal(w, http.StatusUnauthorized, false, err.Error(), "OTP_VERIFICATION_FAILED", nil)
+		return
+	}
+
+	// user, err := service.AuthenticateUser(req.Contact, "")
+	// if err != nil {
+	// 	response.Universal(w, http.StatusUnauthorized, false, "User authentication failed after OTP verification", "AUTH_FAILED", nil)
+	// 	return
+	// }
+
+	// token, err := middleware.GenerateJWT(user.ID, user.Role)
+	// if err != nil {
+	// 	response.Universal(w, http.StatusInternalServerError, false, "Failed to generate token", "JWT_ERROR", nil)
+	// 	return
+	// }
+
+	response.Universal(w, http.StatusOK, true, "USER ACTIVATED SUCCEFULLY", "OTP_VERIFIED", nil)
 }
 
 // GetUsersHandler returns a list of users (without exposing passwords).
@@ -86,11 +124,17 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, err := service.AuthenticateUser(req.Contact, req.Password)
 	if err != nil {
+		var inactiveErr ErrInactiveAccount
+		if errors.As(err, &inactiveErr) {
+			response.Universal(w, http.StatusForbidden, false, inactiveErr.Message, "ACCOUNT_INACTIVE_OTP_SENT", nil)
+			return
+		}
+
 		response.Universal(w, http.StatusUnauthorized, false, "Invalid credentials", "INVALID_CREDENTIALS", nil)
 		return
 	}
 
-	token, err := GenerateJWT(user.ID, user.Role)
+	token, err := middleware.GenerateJWT(user.ID, user.Role)
 	if err != nil {
 		response.Universal(w, http.StatusInternalServerError, false, "Failed to generate token", "JWT_ERROR", nil)
 		return
@@ -99,19 +143,4 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	response.Universal(w, http.StatusOK, true, "Login successful", "LOGIN_SUCCESS", map[string]interface{}{
 		"token": token,
 	})
-}
-
-// AuthMiddleware is a middleware to verify JWT in Authorization header.
-func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("Authorization")
-
-		if !strings.HasPrefix(authHeader, "Bearer ") {
-			response.Universal(w, http.StatusUnauthorized, false, "Missing or invalid Authorization header", "NO_AUTH_HEADER", nil)
-			return
-		}
-
-		// You can add token verification here if needed before calling next
-		next.ServeHTTP(w, r)
-	}
 }

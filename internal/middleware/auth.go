@@ -2,8 +2,7 @@ package middleware
 
 import (
 	"context"
-	user "library-management/internal/user"
-	"library-management/response"
+	"library-management/internal/response"
 	"net/http"
 	"strings"
 )
@@ -28,7 +27,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-		claims, err := user.ParseJWT(tokenString)
+		claims, err := ParseJWT(tokenString)
 		if err != nil {
 			response.Universal(w, http.StatusUnauthorized, false, "Invalid or expired token", "INVALID_TOKEN", nil)
 			return

@@ -2,7 +2,7 @@ package borrow
 
 import (
 	"encoding/json"
-	"library-management/response"
+	"library-management/internal/response"
 	"net/http"
 )
 

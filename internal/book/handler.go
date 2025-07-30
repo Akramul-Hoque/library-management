@@ -2,7 +2,7 @@ package book
 
 import (
 	"encoding/json"
-	"library-management/response"
+	"library-management/internal/response"
 	"log"
 	"net/http"
 )
@@ -13,7 +13,13 @@ func CreateBookHandler(w http.ResponseWriter, r *http.Request) {
 		response.JSON(w, http.StatusBadRequest, "error", "Invalid JSON", "INVALID_PAYLOAD", nil)
 		return
 	}
-	book := Book(req)
+	book := Book{
+		Name:        req.Name,
+		Author:      req.Author,
+		Published:   req.Published,
+		Publication: req.Publication,
+		Quantity:    req.Quantity,
+	}
 	err := AddBook(book)
 	if err != nil {
 		log.Println("DB insert error:", err)
@@ -47,4 +53,41 @@ func GetBooksByNameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.JSON(w, http.StatusOK, "success", "Books retrieved", "BOOKS_RETRIEVED", books)
+}
+
+func EditBooksHandler(w http.ResponseWriter, r *http.Request) {
+	var req BookEditRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		response.JSON(w, http.StatusBadRequest, "error", "Invalid JSON", "INVALID_PAYLOAD", nil)
+		return
+	}
+
+	book := Book(req)
+	if err := EditBook(book); err != nil {
+		switch err.Error() {
+		case "sql: no rows in result set":
+			response.Universal(w, http.StatusConflict, false, "Books not fOund", "BOOK_FETCH_ERROR", nil)
+			return
+		}
+		response.JSON(w, http.StatusOK, "success", "Book updated", "BOOK_UPDATED", nil)
+	}
+}
+func DeletetBooksHandler(w http.ResponseWriter, r *http.Request) {
+	var req BookDeleteRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		response.JSON(w, http.StatusBadRequest, "error", "Invalid JSON", "INVALID_PAYLOAD", nil)
+		return
+	}
+
+	if err := DeleteBook(req.Id); err != nil {
+		switch err.Error() {
+		case "sql: no rows in result set":
+			response.Universal(w, http.StatusConflict, false, "Books not found", "BOOK_FETCH_ERROR", nil)
+			return
+		}
+		response.JSON(w, http.StatusInternalServerError, "error", "Failed to delete book", "BOOK_DELETE_ERROR", nil)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "success", "Book deleted successfully", "BOOK_DELETED", nil)
 }

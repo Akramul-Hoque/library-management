@@ -17,3 +17,10 @@ func GetAllBooks() ([]Book, error) {
 func GetBooksByName(name string) ([]Book, error) {
 	return findBooksByName(name)
 }
+
+func EditBook(b Book) error {
+	return updateBook(b)
+}
+func DeleteBook(id int) error {
+	return deleteBook(id)
+}
